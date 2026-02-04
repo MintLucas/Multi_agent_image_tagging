@@ -1,0 +1,331 @@
+[
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/5、食物/食物2.jpg",
+    "final_labels": [
+      "主体-食物",
+      "场景-场所类型-家居",
+      "场景-天气-晴天",
+      "场景-时间-白天",
+      "食物-拍摄场景-桌面摆盘",
+      "食物-食物类型-中餐"
+    ],
+    "first_level": {
+      "主体": [
+        "食物"
+      ]
+    },
+    "total_labels_count": 6,
+    "status": "success"
+  },
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/2、动物/动物3.jpg",
+    "final_labels": [
+      "主体-动物（宠物）",
+      "动物（宠物）-数量-单只",
+      "动物（宠物）-种类-兔子",
+      "动物（宠物）-视角-宠物正面",
+      "场景-场所类型-室内",
+      "场景-场所类型-家居",
+      "场景-天气-晴天",
+      "场景-时间-白天"
+    ],
+    "first_level": {
+      "主体": [
+        "动物（宠物）"
+      ]
+    },
+    "total_labels_count": 8,
+    "status": "success"
+  },
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/5、食物/食物1.jpg",
+    "final_labels": [
+      "主体-食物",
+      "场景-场所类型-室内",
+      "场景-场所类型-家居",
+      "场景-天气-晴天",
+      "场景-时间-白天",
+      "食物-拍摄场景-桌面摆盘",
+      "食物-食物类型-甜品"
+    ],
+    "first_level": {
+      "主体": [
+        "食物"
+      ]
+    },
+    "total_labels_count": 7,
+    "status": "success"
+  },
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/5、食物/食物3.jpg",
+    "final_labels": [
+      "主体-食物",
+      "场景-场所类型-室内",
+      "场景-场所类型-餐厅",
+      "场景-天气-晴天",
+      "场景-时间-白天",
+      "食物-拍摄场景-桌面摆盘",
+      "食物-食物类型-甜品",
+      "食物-食物类型-饮品"
+    ],
+    "first_level": {
+      "主体": [
+        "食物"
+      ]
+    },
+    "total_labels_count": 8,
+    "status": "success"
+  },
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/2、动物/动物2.jpg",
+    "final_labels": [
+      "主体-动物（宠物）",
+      "动物（宠物）-数量-单只",
+      "动物（宠物）-种类-狗",
+      "动物（宠物）-视角-宠物正面",
+      "场景-光线-逆光",
+      "场景-场所类型-室外",
+      "场景-场所类型-自然",
+      "场景-天气-晴天",
+      "场景-时间-白天"
+    ],
+    "first_level": {
+      "主体": [
+        "动物（宠物）"
+      ]
+    },
+    "total_labels_count": 9,
+    "status": "success"
+  },
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/2、动物/动物4.jpg",
+    "final_labels": [
+      "主体-动物（宠物）",
+      "动物（宠物）-数量-多只",
+      "动物（宠物）-种类-鸟",
+      "动物（宠物）-视角-宠物全身",
+      "场景-场所类型-室外",
+      "场景-天气-晴天",
+      "场景-时间-白天"
+    ],
+    "first_level": {
+      "主体": [
+        "动物（宠物）"
+      ]
+    },
+    "total_labels_count": 7,
+    "status": "success"
+  },
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/4、风景/风景1.jpg",
+    "final_labels": [
+      "主体-风景",
+      "场景-场所类型-室外",
+      "场景-场所类型-自然",
+      "场景-天气-晴天",
+      "场景-时间-白天",
+      "风景-地貌场景-山脉",
+      "风景-地貌场景-草原",
+      "风景-季节相关-夏季"
+    ],
+    "first_level": {
+      "主体": [
+        "风景"
+      ]
+    },
+    "total_labels_count": 8,
+    "status": "success"
+  },
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/4、风景/风景2.jpg",
+    "final_labels": [
+      "主体-风景",
+      "场景-场所类型-室外",
+      "场景-天气-晴天",
+      "场景-时间-白天",
+      "风景-季节相关-秋季"
+    ],
+    "first_level": {
+      "主体": [
+        "风景"
+      ]
+    },
+    "total_labels_count": 5,
+    "status": "success"
+  },
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/4、风景/风景3.jpg",
+    "final_labels": [
+      "主体-风景",
+      "场景-场所类型-室外",
+      "场景-场所类型-自然",
+      "场景-天气-晴天",
+      "场景-时间-白天",
+      "风景-地貌场景-花海",
+      "风景-城市天空-水面",
+      "风景-季节相关-春季"
+    ],
+    "first_level": {
+      "主体": [
+        "风景"
+      ]
+    },
+    "total_labels_count": 8,
+    "status": "success"
+  },
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/2、动物/动物1.jpg",
+    "final_labels": [
+      "主体-动物（宠物）",
+      "动物（宠物）-数量-单只",
+      "动物（宠物）-种类-猫",
+      "动物（宠物）-视角-宠物全身",
+      "场景-光线-逆光",
+      "场景-场所类型-室内",
+      "场景-场所类型-家居",
+      "场景-天气-晴天",
+      "场景-时间-白天"
+    ],
+    "first_level": {
+      "主体": [
+        "动物（宠物）"
+      ]
+    },
+    "total_labels_count": 9,
+    "status": "success"
+  },
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/1、人像/人像3.jpg",
+    "final_labels": [
+      "主体-人像",
+      "人像-人数-单人",
+      "人像-发型-长发",
+      "人像-年龄-成年",
+      "人像-性别-女性",
+      "人像-服饰-基本款式-毛衣",
+      "人像-服饰-风格-休闲风",
+      "人像-构图-半身",
+      "人像-构图-正面",
+      "场景-场所类型-室内",
+      "场景-天气-晴天",
+      "场景-时间-白天"
+    ],
+    "first_level": {
+      "主体": [
+        "人像"
+      ]
+    },
+    "total_labels_count": 12,
+    "status": "success"
+  },
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/3、植物/植物2.jpg",
+    "final_labels": [
+      "主体-植物",
+      "场景-光线-自然光",
+      "场景-场所类型-室内",
+      "场景-场所类型-家居",
+      "场景-天气-晴天",
+      "场景-时间-白天"
+    ],
+    "first_level": {
+      "主体": [
+        "植物"
+      ]
+    },
+    "total_labels_count": 6,
+    "status": "success"
+  },
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/4、风景/风景4.jpg",
+    "final_labels": [
+      "主体-人像",
+      "主体-动物（宠物）",
+      "主体-风景",
+      "人像-人数-单人",
+      "人像-人数-多人（≥2人）",
+      "人像-年龄-成年",
+      "人像-性别-女性",
+      "人像-性别-男性",
+      "人像-服饰-基本款式-T恤",
+      "人像-服饰-基本款式-裙子",
+      "人像-服饰-风格-休闲风",
+      "人像-构图-半身",
+      "人像-构图-正面",
+      "动物（宠物）-数量-单只",
+      "动物（宠物）-种类-其他",
+      "动物（宠物）-视角-宠物正面",
+      "场景-光线-彩虹",
+      "场景-场所类型-室外",
+      "场景-场所类型-自然",
+      "场景-天气-晴天",
+      "场景-时间-夜晚",
+      "风景-地貌场景-海边",
+      "风景-城市天空-日落"
+    ],
+    "first_level": {
+      "主体": [
+        "人像",
+        "动物（宠物）",
+        "风景"
+      ]
+    },
+    "total_labels_count": 23,
+    "status": "success"
+  },
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/1、人像/人像1.jpg",
+    "final_labels": [
+      "主体-人像",
+      "人像-人数-单人",
+      "人像-发型-扎发",
+      "人像-年龄-成年",
+      "人像-性别-女性",
+      "人像-服饰-基本款式-T恤",
+      "人像-服饰-风格-休闲风",
+      "人像-构图-半身",
+      "人像-构图-正面",
+      "人像-饰品-项链",
+      "场景-场所类型-室外",
+      "场景-天气-晴天",
+      "场景-时间-白天"
+    ],
+    "first_level": {
+      "主体": [
+        "人像"
+      ]
+    },
+    "total_labels_count": 13,
+    "status": "success"
+  },
+  {
+    "image_path": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/1、人像/人像2.jpg",
+    "final_labels": [
+      "主体-人像",
+      "主体-风景",
+      "人像-人数-单人",
+      "人像-发型-长发",
+      "人像-年龄-成年",
+      "人像-性别-女性",
+      "人像-服饰-基本款式-毛衣",
+      "人像-服饰-风格-休闲风",
+      "人像-构图-半身",
+      "人像-构图-正面",
+      "场景-光线-逆光",
+      "场景-场所类型-室外",
+      "场景-场所类型-自然",
+      "场景-天气-晴天",
+      "场景-时间-白天",
+      "风景-地貌场景-海边",
+      "风景-城市天空-日落"
+    ],
+    "first_level": {
+      "主体": [
+        "人像",
+        "风景"
+      ]
+    },
+    "total_labels_count": 17,
+    "status": "success"
+  }
+]
