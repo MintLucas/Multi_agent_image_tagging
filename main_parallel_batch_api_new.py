@@ -9,11 +9,11 @@ from typing import List, Dict
 # --------------------------
 # 配置项
 # --------------------------
-API_URL = "http://49.7.36.149:80/process_image_local"
+API_URL = "http://10.136.234.255:8080/process_image"
 MAX_WORKERS = 1  # 线程池大小
 REQUEST_TIMEOUT = 300  # 请求超时时间（秒）
-IMAGE_FOLDER = '/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/3、植物'  # 图片文件夹路径
-OUTPUT_EXCEL = "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/植物.xlsx"
+IMAGE_FOLDER = '/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型'  # 图片文件夹路径
+OUTPUT_EXCEL = "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/主体类型.xlsx"
 PREFIX_TO_REMOVE = "/workspace/work/zhipeng16/git"  # 路径简化前缀
 
 # --------------------------
