@@ -9,17 +9,21 @@ from typing import List, Dict
 # --------------------------
 # 配置项
 # --------------------------
-API_URL = "http://49.7.36.149:80/process_image_local"
+API_URL = "http://10.136.234.255:8080/process_image"
+API_URL2 = "http://10.136.234.255:8081/process_image"
+
 MAX_WORKERS = 1  # 线程池大小
 REQUEST_TIMEOUT = 300  # 请求超时时间（秒）
-IMAGE_FOLDER = '/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/1、主体类型/3、植物'  # 图片文件夹路径
-OUTPUT_EXCEL = "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/植物.xlsx"
-PREFIX_TO_REMOVE = "/workspace/work/zhipeng16/git"  # 路径简化前缀
-
+dir_pre = "/Users/zhipeng/Win10/LocalOneDrive/Gitee/Multi_agent_image_tagging"
+IMAGE_FOLDER = dir_pre + '/无他图片标签测试图2'  # 图片文件夹路径
+OUTPUT_EXCEL = dir_pre + "/主体类型.xlsx"
+OUTPUT_EXCEL2 = dir_pre + "/主体类型2.xlsx"
+PREFIX_TO_REMOVE = "/Users/zhipeng/Win10/LocalOneDrive/Gitee"  # 路径简化前缀
+PREFIX_ONLINE = "/workspace/work/zhipeng16/git"  # 路径简化前缀
 # --------------------------
 # 单张图片接口调用函数
 # --------------------------
-def call_image_api(img_path: str) -> Dict:
+def call_image_api(img_path: str, API_URL = API_URL) -> Dict:
     """
     调用图片标签接口，返回单张图片的处理结果
     """
@@ -48,7 +52,7 @@ def call_image_api(img_path: str) -> Dict:
         # 解析响应结果
         response_json = response.json()
         if response_json.get("code") == 200:
-            return response_json.get("result", {})
+            return response_json.get("res", {})
         else:
             return {
                 "image_info": img_path,
@@ -86,6 +90,34 @@ def call_image_api(img_path: str) -> Dict:
 # --------------------------
 # 批量接口调用函数
 # --------------------------
+def batch_call_image_api_new(image_paths: List[str], API_URL = API_URL) -> List[Dict]:
+    """
+    批量调用图片标签接口，使用线程池并发处理
+    """
+    results = []
+    results2 = []
+
+    for img_path in image_paths:
+        try:
+            result = call_image_api(img_path, API_URL)
+            # result2 = call_image_api(img_path,API_URL2)
+            results.append(result)
+            # results2.append(result2)
+        except Exception as e:
+
+            error_result = {
+                "image_info": img_path,
+                "final_labels": [],
+                "total_labels_count": 0,
+                "elapsed_time": 0.0,
+                "token_cost": 0.0,
+                "status": "failed",
+                "error": f"线程执行异常：{str(e)}"
+            }
+            results.append(error_result)
+
+    return results
+
 def batch_call_image_api(image_paths: List[str]) -> List[Dict]:
     """
     批量调用图片标签接口，使用线程池并发处理
@@ -255,7 +287,8 @@ if __name__ == "__main__":
     for root, _, files in os.walk(IMAGE_FOLDER):
         for file in files:
             if file.lower().endswith(supported_formats):
-                img_full_path = os.path.join(root, file)
+                new_root = root.replace(PREFIX_TO_REMOVE,PREFIX_ONLINE)
+                img_full_path = os.path.join(new_root, file)
                 image_paths.append(img_full_path)
     
     # 打印扫描结果
@@ -266,7 +299,7 @@ if __name__ == "__main__":
     
     # 2. 批量调用接口
     print("\n🚀 开始批量调用图片标签接口...")
-    batch_results = batch_call_image_api(image_paths)
+    batch_results = batch_call_image_api_new(image_paths, API_URL)
     
     # 3. 保存结果到Excel
     print("\n📝 开始保存结果到Excel...")
