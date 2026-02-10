@@ -17,38 +17,48 @@ from model import CallVLMModel
 # 利用代码定义结构，替代 Prompt 中的长文本约束
 
 class PortraitDetails(BaseModel):
+    # 1. 核心属性（强制必选，无 default）
     gender: List[Literal["男性", "女性"]] = Field(
-        default=[], description="性别"
+        description="性别判定"
     )
     age: List[Literal["儿童", "少年", "青年", "中年", "老年"]] = Field(
-        default=[], description="年龄段：儿童(0-10), 少年(11-18), 青年(19-35), 中年(36-59), 老年(60+)"
+        description="严格年龄段：儿童(0-10岁)、少年(11-18岁)、青年(19-35岁)、中年(36-59岁)、老年(60岁+)"
     )
     count: List[Literal["单人", "多人"]] = Field(
-        default=[], description="人数，背景有人也算多人"
+        description="人数判定：单人、多人（画面≥2人，背景中出现的非主体路人也算多人）"
     )
+    
+    # 2. 构图与风格（强制必选）
     composition: List[Literal["自拍", "合影", "正面", "侧面", "全身", "半身", "面部特写"]] = Field(
-        default=[], description="构图方式"
+        description="构图标准：自拍(含手臂/自拍杆痕迹)；全身(头顶至脚底完整)；半身(头顶至大腿/腰部)；面部特写(头部占比≤30%或仅头部)"
     )
     usage: List[Literal["生活照", "证件照", "情侣照"]] = Field(
-        default=[], description="图片用途/风格"
+        description="用途：生活照(日常)、证件照(纯色背景/正式)、情侣照(亲密互动/甜蜜氛围)"
     )
-    accessories: List[Literal["眼镜", "帽子", "口罩", "耳环", "项链"]] = Field(
-        default=[], description="佩戴的饰品"
-    )
+    
+    # 3. 发型特征（强制必选，除非完全被遮挡，否则必须判断）
     hair_length: List[Literal["长发", "短发"]] = Field(
-        default=[], description="发型长度"
+        description="发长：长发(过肩/≥30cm)、短发(≤下巴/寸头/波波头)"
     )
     hair_type: List[Literal["卷发", "直发"]] = Field(
-        default=[], description="发型直卷"
+        description="发质：卷发(明显波浪/烫卷)、直发(顺直无明显卷曲)"
     )
     hair_style: List[Literal["扎发", "披发"]] = Field(
-        default=[], description="发型形式"
+        description="形式：扎发(马尾/丸子头/辫子)、披发(自然散开)"
     )
+    
+    # 4. 面部与姿态（强制必选）
     expression: List[Literal["微笑", "大笑", "严肃", "闭眼"]] = Field(
-        default=[], description="面部表情"
+        description="表情：微笑(嘴角上扬)、大笑(露齿/开朗)、严肃(无笑容/专注)、闭眼(休息/睡眠)"
     )
     posture: List[Literal["坐姿", "站立"]] = Field(
-        default=[], description="身体姿态"
+        description="姿态：坐姿(椅子/地面/沙发)、站立(自然站立/摆拍)"
+    )
+
+    # 5. 饰品（保留可选，default=[]，因为可能真的没有）
+    accessories: List[Literal["眼镜", "帽子", "口罩", "耳环", "项链"]] = Field(
+        default=[], 
+        description="饰品(可多选)：眼镜(含墨镜/透明镜)、帽子、口罩、耳环、项链。无饰品则留空。"
     )
 
 # 获取 JSON Schema 对象
@@ -109,6 +119,8 @@ PROMPT =  """
         - 发型形式：扎发（头发被束起固定，含马尾、丸子头、麻花辫、高颅顶束发、半扎发等形态，非完全散开）、披发（头发完全自然散开，无束起、绑扎的痕迹，整体呈垂落/蓬松散开状态）
         - 表情：微笑（嘴角上扬，露出牙齿或不露齿均可，整体面部表情愉悦）、大笑（哈哈大笑，笑的豁然开朗，漏出牙齿的笑）严肃（面部表情平静，无明显笑容，嘴唇紧闭或微张，眼神专注有神）、闭眼（双眼稍微眯眼，注意稍微眯眼，不是正常的看镜头）
         - 姿态：坐姿（人物以坐着的姿势出现，含椅子、地面、沙发等多种坐姿场景）、站立（人物以站立的姿势出现，含自然站立、摆拍等多种站姿场景）
+        """
+output_require = """
         输出要求：严格用JSON格式返回，key为二级分类类型（如“性别”“年龄”），value为标签列表（空列表不显示），不添加任何额外文字、解释或标点。并且标签必须使用完整标签名称，不能使用简称或缩写，并且不要带括号内解释内容。
         错误格式示例（禁止格式）：{"性别":["女性"], "年龄":["成年"], "人数":["单人", "自拍"], "备注":"图片为室内自拍"}
         正确格式示例（必须遵循的格式）：{"性别":["女性"], "年龄":["成年"], "人数":["单人"], "构图":["正面", "半身"], "用途":["生活照"], "饰品":["帽子"], "发型长度":["短发"], "发型直卷":["直发"], "发型形式":["披发"], "表情":["微笑"], "姿态":["站立"]}

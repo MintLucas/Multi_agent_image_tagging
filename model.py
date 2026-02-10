@@ -201,12 +201,24 @@ class CallVLMModel:
                     ],
                 },
             ],
-            "temperature": 0.1,  # 建议加上温度控制，打标越低越好
+            "temperature": 0.1,  # 建议加上温度控制，打标越低越好,
+            "max_tokens": 512  # 限制最大生成长度（JSON标签通常不会超过512个token），卡死时会强制截断,
         }
 
         # 4. 【核心优化】如果传入了 schema，启用 Guided Decoding
+        # if schema is not None:
+        #     request_kwargs["extra_body"] = {"guided_json": schema}
+
         if schema is not None:
-            request_kwargs["extra_body"] = {"guided_json": schema}
+            request_kwargs["response_format"] = {
+                "type": "json_schema", 
+                "json_schema": {
+                    "name": "result",        # 名字随便起
+                    "schema": schema,        # 这里放入你的 Pydantic schema
+                    "strict": True           # 强制严格模式
+                }
+            }
+            # 注意：移除原来的 extra_body 代码
 
         # 5. 发起调用
         try:
