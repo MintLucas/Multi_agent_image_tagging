@@ -31,10 +31,17 @@ class PortraitDetailsSchema(BaseModel):
         description="单人（画面里仅一个人物），多人（画面里出现≥2 个人物）"
     )
     
-    构图: List[Literal["自拍", "合影", "正面", "侧面", "全身", "半身", "面部特写"]] = Field(
-        description="构图标准：自拍(含手臂/自拍杆/高角度)；合影(多人均匀)；全身(头至脚完整)；半身(头至大腿/腰部)；面部特写(头部占比≤30%或仅头部/含少量颈部)。"
+    拍摄方式: List[Literal["自拍", "他拍", "合影"]] = Field(
+            description="判断是谁拍的。自拍(看到手机/手臂延伸)；合影(刻意多人配合)；他拍(常规拍摄)。"
+        )
+    
+    构图: List[Literal["全身", "半身", "面部特写"]] = Field(
+        description="判断画面涵盖范围。全身(头到脚)；半身(腰/腿以上)；面部特写(仅头颈)；。"
     )
     
+    角度: List[Literal["正面", "侧面", "背影"]] = Field(
+        description="人物相对于镜头的朝向。"
+    )
     用途: List[Literal["生活照", "证件照", "情侣照"]] = Field(
         description="用途：生活照(日常)；证件照(纯色背景/无夸张饰品/正面)；情侣照(亲密互动/甜蜜氛围)。"
     )
@@ -58,9 +65,8 @@ class PortraitDetailsSchema(BaseModel):
     姿态: List[Literal["坐姿", "站立"]] = Field(
         description="姿态：坐姿(椅子/地面/沙发)；站立(自然站立/摆拍)。"
     )
-
     # 饰品可能真的没有，所以保留 default=[]，允许为空列表
-    饰品: List[Literal["眼镜", "帽子", "口罩", "耳环", "项链"]] = Field(
+    饰品: List[Literal["帽子", "口罩", "耳环", "项链"]] = Field(
         default=[], 
         description="饰品(多选)：眼镜(含黑色墨镜/近视镜/透明镜)、帽子、口罩、耳环、项链。"
     )
@@ -77,6 +83,9 @@ class ClothingDetailsSchema(BaseModel):
     )
     风格: List[Literal["休闲风", "街头风", "正式风", "学院风"]] = Field(
         default=[], description="服装的整体风格"
+    )
+    眼镜: List[Literal["眼镜","无眼镜"]] = Field(
+        description="是否佩戴眼镜。只要佩戴了任何类型的眼镜（包括近视镜、墨镜、太阳镜、装饰镜等），都必须选'眼镜'。"
     )
 
 # ==========================================
@@ -120,20 +129,27 @@ class SceneryDetailsSchema(BaseModel):
 # 7. 全局场景类型 Schema
 # ==========================================
 class SceneTypeSchema(BaseModel):
-    场所类型: List[Literal["室内", "室外", "自然", "家居", "餐厅", "健身房", "游乐园", "音乐节", "KTV", "演唱会"]] = Field(
+    空间: List[Literal["室内", "室外"]] = Field(
+        description="物理空间属性。室内(有屋顶/墙壁)；室外(露天环境)。"
+    )
+    场所类型: List[Literal[ "自然", "家居", "餐厅", "健身房", "游乐园", "音乐节", "KTV", "演唱会"]] = Field(
         default=[], description="所处空间类型"
     )
     时间: List[Literal["白天", "夜晚"]] = Field(
         default=[], description="白天(自然光) vs 夜晚(人工照明)"
     )
-    天气: List[Literal["晴天", "阴天", "多云", "雨天", "雪天", "雾天"]] = Field(
+    天气: List[Literal["晴天", "阴天", "多云", "雨天", "雪天", "雾天", "彩虹"]] = Field(
         default=[], description="天气状况"
     )
-    光线: List[Literal["彩虹", "逆光"]] = Field(
+    光线: List[Literal["自然光", "逆光"]] = Field(
         default=[], description="特殊光影"
     )
-    特殊元素: List[Literal["烟花", "圣诞树", "气球", "彩带", "蛋糕", "粽子", "元宵", "月饼", "礼物盒", "水印"]] = Field(
+    特殊元素: List[Literal["烟花", "圣诞树", "气球", "彩带", "蛋糕", "粽子", "元宵", "月饼", "礼物盒"]] = Field(
         default=[], description="画面中明确存在的实体物品（排除印刷图案）"
+    )
+    # 2. 新增：独立水印字段（强制二选一）
+    水印: List[Literal["水印", "无水印"]] = Field(
+        description="【强制检查】：扫描画面四角及中央。只要发现文字水印、Logo、时间戳或防盗纹，必须选'水印'；完全干净选'无水印'。不可为空。"
     )
     图片质量: List[Literal["无路人", "有路人", "老照片"]] = Field(
         default=[], description="画面质量与干扰因素：无路人(仅主体)；有路人(画面中有除主体外的其他人物)；老照片(泛黄/年代感)。"
