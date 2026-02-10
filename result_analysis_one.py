@@ -183,7 +183,7 @@ class ImageTagPipeline:
     # =========================================================================
     # 核心功能 3: 筛选低分标签并重测 (生成新 JSON)
     # =========================================================================
-    def retest_low_accuracy(self, excel_path, threshold=0.6):
+    def retest_low_accuracy(self, excel_path = "images_result_with_labels_20260129_match_result.xlsx", threshold=0.6):
         """
         筛选识别率 < threshold 的标签，调用接口重测，保存为新 JSON。
         """
@@ -204,7 +204,7 @@ class ImageTagPipeline:
             return None
 
         # 筛选标签
-        target_tags = df_stats[df_stats['识别率'] < threshold]['路径标签'].tolist()
+        target_tags = df_stats[df_stats['识别率'] <= threshold]['路径标签'].tolist()
         if not target_tags:
             print("    没有低于该阈值的标签。")
             return None
@@ -270,23 +270,16 @@ class ImageTagPipeline:
     # 核心功能 4: 双 Excel 对比可视化
     # =========================================================================
     def compare_two_excels(self, old_excel_path, new_excel_path, top_n=30):
-        """
-        对比两个 Excel，生成两张图表：
-        1. 迭代效果最好的 Top N (comparison_improvement.png)
-        2. 准确率低(<50%)且没什么变化的 Top N (comparison_stagnant.png)
-        """
         print(f"[-] 开始对比分析: {old_excel_path} vs {new_excel_path}")
 
         if not (os.path.exists(old_excel_path) and os.path.exists(new_excel_path)):
             print("Error: 输入文件不存在")
             return
 
-        # --- 1. 读取数据 ---
         try:
             df_old_stats = pd.read_excel(old_excel_path, sheet_name='识别率统计', engine='openpyxl')
             df_new_stats = pd.read_excel(new_excel_path, sheet_name='识别率统计', engine='openpyxl')
 
-            # 尝试读取概览表
             try:
                 df_old_summary = pd.read_excel(old_excel_path, sheet_name='整体概览', engine='openpyxl')
                 df_new_summary = pd.read_excel(new_excel_path, sheet_name='整体概览', engine='openpyxl')
@@ -297,24 +290,18 @@ class ImageTagPipeline:
             print(f"Error: 读取 Excel 失败 - {e}")
             return
 
-        # --- 2. 数据处理 ---
         df_old_stats = df_old_stats[['路径标签', '识别率']].rename(columns={'识别率': 'acc_old'})
         df_new_stats = df_new_stats[['路径标签', '识别率']].rename(columns={'识别率': 'acc_new'})
 
         merged = pd.merge(df_old_stats, df_new_stats, on='路径标签', how='inner')
         merged['improvement'] = merged['acc_new'] - merged['acc_old']
 
-        # 保存全量明细
         detail_file = "comparison_full_detail.xlsx"
         merged.to_excel(detail_file, index=False, engine='openpyxl')
         print(f"[√] 全量对比明细已保存: {detail_file}")
 
-        # =========================================================
-        # 图表 1: 迭代效果最好的 Top N (红榜)
-        # =========================================================
-        # 逻辑: 按提升幅度降序排列
+        # 图表 1: 红榜
         df_improve = merged.sort_values('improvement', ascending=False).head(top_n)
-
         self._plot_chart(
             data=df_improve,
             title=f'迭代效果最好的 Top {len(df_improve)} 标签',
@@ -322,11 +309,7 @@ class ImageTagPipeline:
             summary_data=(df_old_summary, df_new_summary) if has_summary else None
         )
 
-        # =========================================================
-        # 图表 2: 准确率低且无变化的 Top N (黑榜)
-        # =========================================================
-        # 逻辑: 新准确率 < 50%  AND  绝对变化幅度 < 5%
-        # 排序: 按准确率从低到高 (越低越需要关注)
+        # 图表 2: 黑榜
         df_stagnant = merged[
             (merged['acc_new'] < 0.5) &
             (merged['improvement'].abs() < 0.05)
@@ -337,44 +320,50 @@ class ImageTagPipeline:
                 data=df_stagnant,
                 title=f'准确率低(<50%)且无改善的 Top {len(df_stagnant)} 标签',
                 output_filename='comparison_stagnant.png',
-                summary_data=None,  # 这张图不需要概览表，专注看问题标签
-                bar_colors=('#A9A9A9', '#696969')  # 以此区分：浅灰(旧)，深灰(新)
+                summary_data=None,
+                bar_colors=('#A9A9A9', '#696969')
             )
         else:
             print("[-] 太棒了！没有发现“准确率低且无变化”的标签。")
 
     def _plot_chart(self, data, title, output_filename, summary_data=None, bar_colors=('#87CEFA', '#FF7F50')):
-        """
-        内部绘图辅助函数
-        """
         if data.empty: return
 
-        # 动态高度
         fig_height = 8 + (len(data) // 10)
-        # 如果有概览表，预留底部空间
         height_ratios = [4, 1] if summary_data else [1]
 
         fig = plt.figure(figsize=(14, fig_height))
-        gs = fig.add_gridspec(len(height_ratios), 1, height_ratios=height_ratios, hspace=0.4)
+        gs = fig.add_gridspec(len(height_ratios), 1, height_ratios=height_ratios, hspace=0.5)
 
-        # 1. 柱状图
         ax1 = fig.add_subplot(gs[0])
         labels = data['路径标签']
         x = np.arange(len(labels))
         width = 0.35
 
-        ax1.bar(x - width / 2, data['acc_old'], width, label='旧版本', color=bar_colors[0])
-        ax1.bar(x + width / 2, data['acc_new'], width, label='新版本', color=bar_colors[1])
+        rects1 = ax1.bar(x - width / 2, data['acc_old'], width, label='旧版本', color=bar_colors[0])
+        rects2 = ax1.bar(x + width / 2, data['acc_new'], width, label='新版本', color=bar_colors[1])
 
         ax1.set_ylabel('识别率 (Accuracy)')
         ax1.set_title(title)
         ax1.set_xticks(x)
-        # 标签过多时自动旋转
         rotation = 45 if len(data) < 30 else 90
         ax1.set_xticklabels(labels, rotation=rotation, ha='right' if rotation == 45 else 'center')
         ax1.legend()
 
-        # 2. 概览表 (可选)
+        # --- [新增] 显示百分比标签 ---
+        def autolabel(rects):
+            for rect in rects:
+                height = rect.get_height()
+                # 格式化为两位小数，例如 0.85
+                # 如果数值为0，也可以选择不显示以保持整洁： if height > 0: ...
+                ax1.text(rect.get_x() + rect.get_width() / 2., height + 0.01,
+                         f'{height:.2f}',
+                         ha='center', va='bottom', fontsize=8,
+                         rotation=90 if len(data) > 20 else 0)  # 数量多时数值也竖着写
+        autolabel(rects1)
+        autolabel(rects2)
+        # ---------------------------
+
         if summary_data:
             df_old_sum, df_new_sum = summary_data
             ax2 = fig.add_subplot(gs[1])
@@ -389,7 +378,6 @@ class ImageTagPipeline:
             table_data = []
             columns = ['统计指标', '旧版本数据', '新版本数据', '变化趋势']
             for _, row in summary_merge.iterrows():
-                # ... (保持原有的计算逻辑) ...
                 val_old = row['数值(格式化)_旧']
                 val_new = row['数值(格式化)_新']
                 try:
@@ -403,7 +391,6 @@ class ImageTagPipeline:
             table.auto_set_font_size(False)
             table.set_fontsize(10)
             table.scale(1, 1.5)
-            # 表头样式
             for (r, c), cell in table.get_celld().items():
                 if r == 0: cell.set_facecolor('#f0f0f0')
 
@@ -412,13 +399,12 @@ class ImageTagPipeline:
         print(f"[√] 图表已保存: {output_filename}")
         plt.close()
 
-
 # =========================================================================
 # 使用示例 (Main 流程)
 # =========================================================================
 if __name__ == "__main__":
     # 1. 实例化 Pipeline
-    pipeline = ImageTagPipeline(api_url="http://49.7.36.149:80/process_image_local")
+    pipeline = ImageTagPipeline(api_url="http://10.136.234.255:8081/process_image")
 
     # 2. 原始文件处理 (第一轮)
     first_round_json = "images_result_with_labels_20260129_match_result.json"
@@ -426,9 +412,9 @@ if __name__ == "__main__":
     # 2.1 JSON -> Excel
     old_excel = pipeline.json_to_excel(first_round_json)
 
-    # 3. 开始重测流程
+    # 3. 开始重测流程;这个保存文件名字为retest不一致，用另一个py badcase_improve来测
     # 筛选识别率 < 60% 的标签进行重测
-    # retest_json = pipeline.retest_low_accuracy(old_excel, threshold=0.6)
+    # retest_json = pipeline.retest_low_accuracy(threshold=0.0)
 
     # 4. 将重测结果转为新 Excel
     retest_json = "images_result_with_labels_20260210_match_result.json"
