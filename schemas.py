@@ -28,7 +28,7 @@ class PortraitDetailsSchema(BaseModel):
     )
     
     人数: List[Literal["单人", "多人"]] = Field(
-        description="单人或多人(≥2人)。注意：背景中出现的非主体路人也算多人，必须选多人。"
+        description="单人（画面里仅一个人物），多人（画面里出现≥2 个人物）"
     )
     
     构图: List[Literal["自拍", "合影", "正面", "侧面", "全身", "半身", "面部特写"]] = Field(
@@ -136,7 +136,7 @@ class SceneTypeSchema(BaseModel):
         default=[], description="画面中明确存在的实体物品（排除印刷图案）"
     )
     图片质量: List[Literal["无路人", "有路人", "老照片"]] = Field(
-        default=[], description="画面质量与干扰因素：无路人(仅主体)；有路人(含杂乱人物)；老照片(泛黄/年代感)。"
+        default=[], description="画面质量与干扰因素：无路人(仅主体)；有路人(画面中有除主体外的其他人物)；老照片(泛黄/年代感)。"
     )
     节日: List[Literal["生日", "婚礼", "圣诞", "春节", "中秋", "端午", "万圣节", "国庆"]] = Field(
         default=[], description="明显的节日氛围元素"
