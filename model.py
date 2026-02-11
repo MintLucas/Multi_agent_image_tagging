@@ -191,8 +191,20 @@ class CallVLMModel:
         # 3. 构造请求参数
         # 注意：不要硬编码模型路径，建议从 client 或 self.model_name 获取
         # 这里假设你 self 里存了模型名，或者你确认两个端口模型一致
-        model_name = "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/model/Qwen/Qwen3-VL-4B-Instruct"
-
+        if not hasattr(self, "current_model_name") or self.current_model_name is None:
+            try:
+                # 调用 /v1/models 接口
+                model_list = client.models.list()
+                # vLLM 通常只加载一个模型，取第一个即可
+                # data[0].id 通常就是启动参数里的路径 "/workspace/.../Qwen3-VL-4B-Instruct"
+                self.current_model_name = model_list.data[0].id
+                print(f"✅ 自动检测到模型名称: {self.current_model_name}")
+            except Exception as e:
+                print(f"⚠️ 无法自动获取模型名，使用默认硬编码路径。错误: {e}")
+                # 兜底：如果查询失败，回退到硬编码
+                self.current_model_name = "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/model/Qwen/Qwen3-VL-4B-Instruct"
+        
+        model_name = self.current_model_name
         messages = [
             {
                 "role": "user",

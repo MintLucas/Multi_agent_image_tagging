@@ -65,27 +65,59 @@ class PortraitDetailsSchema(BaseModel):
     姿态: List[Literal["坐姿", "站立"]] = Field(
         description="姿态：坐姿(椅子/地面/沙发)；站立(自然站立/摆拍)。"
     )
-    # 饰品可能真的没有，所以保留 default=[]，允许为空列表
-    饰品: List[Literal["帽子", "口罩", "耳环", "项链"]] = Field(
-        default=[], 
-        description="饰品(多选)：帽子、口罩、耳环、项链。"
-    )
+
 
 # ==========================================
 # 3. 人像服饰三级 Schema
 # ==========================================
+# class ClothingDetailsSchema(BaseModel):
+#     # 1. 字段名必须与 Prompt 和 白名单 保持高度一致
+#     # 2. 增强 description，告诉模型不要偷懒
+#     基本款式: List[Literal["西装", "职业装", "T恤", "衬衫", "毛衣", "羽绒服", "裙子", "运动装", "睡衣", "校服", "婚纱", "泳装"]] = Field(
+#         default=[], 
+#         description="【强制扫描全身】：仔细观察人物上装和下装。必须识别出至少一种主要服装类型（如穿了裙子必选'裙子'，穿了西服必选'西装'）。"
+#     )
+    
+#     题材: List[Literal["cosplay", "lolita", "jk", "旗袍", "新中式", "民族服装", "夏装", "冬装", "春秋装"]] = Field(
+#         default=[], 
+#         description="【风格识别】：判断服装的特定题材。特别是Lolita、JK、Cosplay、汉服等特色服饰，特征明显时必须检出。"
+#     )
+    
+#     风格: List[Literal["休闲风", "街头风", "正式风", "学院风"]] = Field(
+#         default=[], 
+#         description="整体穿搭氛围判断。"
+#     )
+
+#     # 3. 将眼镜放在最后，作为补充细节
+#     眼镜: List[Literal["眼镜", "否"]] = Field(
+#         description="【面部细节】：是否佩戴眼镜/墨镜。",
+#         max_items=1
+#     )
+
 class ClothingDetailsSchema(BaseModel):
     基本款式: List[Literal["西装", "职业装", "T恤", "衬衫", "毛衣", "羽绒服", "裙子", "运动装", "睡衣", "校服", "婚纱", "泳装"]] = Field(
-        default=[], description="服装的基础款式分类"
+        default=[], 
+        description="【强制扫描全身】：仔细观察人物上装和下装。必须识别出至少一种主要服装类型（如穿了裙子必选'裙子'，穿了西服必选'西装'）。"
     )
+    
     题材: List[Literal["cosplay", "lolita", "jk", "旗袍", "新中式", "民族服装", "夏装", "冬装", "春秋装"]] = Field(
-        default=[], description="服装的特定题材或季节属性"
+        default=[], 
+        description="【风格识别】：判断服装的特定题材。特别是Lolita、JK、Cosplay、汉服等特色服饰，特征明显时必须检出。"
     )
+    
     风格: List[Literal["休闲风", "街头风", "正式风", "学院风"]] = Field(
-        default=[], description="服装的整体风格"
+        default=[], 
+        description="整体穿搭氛围判断。"
     )
-    眼镜: List[Literal["眼镜","否"]] = Field(
-        description="是否佩戴眼镜。只要佩戴了任何类型的眼镜（包括近视镜、墨镜、太阳镜、装饰镜等），都必须选'眼镜'。",max_items=1
+    
+    饰品: List[Literal["帽子", "口罩", "耳环", "项链", "发饰", "围巾"]] = Field(
+        default=[], 
+        description="【配饰扫描】：检查头部(帽子/发饰)、面部(口罩)、耳部(耳环)、颈部(项链/围巾)。"
+    )
+    
+    眼镜: List[Literal["眼镜", "否"]] = Field(
+        description="【面部细节】：是否佩戴眼镜/墨镜。必须二选一。",
+        max_items=1
     )
 
 # ==========================================
