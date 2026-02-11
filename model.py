@@ -158,7 +158,7 @@ class CallVLMModel:
         }
 
 
-    def call_qwen_new(self, image_content: str, prompt: str, schema: dict = None, service_index: int = 0) -> dict:
+    def call_qwen_new(self, image_content: str, prompt: str, schema: dict = None, service_index: int = None) -> dict:
         """
         封装 Qwen3-VL-4B-Instruct 调用
         Args:
@@ -277,91 +277,6 @@ class CallVLMModel:
                 "prompt_tokens": 0,
                 "completion_tokens": 0,
                 "error": str(e) # 把错误信息带出去
-            }
-
-    # 合并后的调用函数，支持指定服务节点(0或1)以及Schema约束
-    def call_qwen_new2(self, image_content: str, prompt: str, schema: dict = None, service_index: int = 0) -> dict:
-        """
-        封装qwen2.5-vl-3b-instruct调用
-        Args:
-            image_content: 图片路径或Base64或URL
-            prompt: 提示词
-            schema: (新增) Pydantic生成的JSON Schema，用于强制结构化输出
-            service_index: (新增) 服务节点索引，0对应8000端口，1对应8001端口
-        """
-        
-        # 1. 选择客户端
-        # 传index用第几个客户端没传的话随机选；负载均衡
-        service_index_list = [self.qwen_local_client0, self.qwen_local_client1]
-        if service_index != None:
-            client = service_index_list[service_index]
-        else:
-            client = random.choice(service_index_list)
-
-        # 2. 处理图片格式
-        if self.is_http_https_url(image_content):
-            # 情况1：是HTTP/HTTPS URL
-            image_url_value = image_content.strip()
-        else:
-            # 情况2：不是URL，处理Base64
-            # 如果传入的已经是 "data:image..." 格式，就不重复加前缀（兼容性处理）
-            content_stripped = image_content.strip()
-            if content_stripped.startswith("data:image"):
-                image_url_value = content_stripped
-            else:
-                image_url_value = f"data:image/jpeg;base64,{content_stripped}"
-
-        # 3. 构造请求参数
-        request_kwargs = {
-            "model": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/model/Qwen/Qwen3-VL-4B-Instruct",
-            "messages": [
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "image_url", "image_url": {"url": image_url_value}},
-                        {"type": "text", "text": prompt},
-                    ],
-                },
-            ],
-            "temperature": 0.1,  # 建议加上温度控制，打标越低越好,
-            "max_tokens": 512  # 限制最大生成长度（JSON标签通常不会超过512个token），卡死时会强制截断,
-        }
-
-        # 4. 【核心优化】如果传入了 schema，启用 Guided Decoding
-        # if schema is not None:
-        #     request_kwargs["extra_body"] = {"guided_json": schema}
-
-        if schema is not None:
-            request_kwargs["response_format"] = {
-                "type": "json_schema", 
-                "json_schema": {
-                    "name": "result",        # 名字随便起
-                    "schema": schema,        # 这里放入你的 Pydantic schema
-                    "strict": True           # 强制严格模式
-                }
-            }
-            # 注意：移除原来的 extra_body 代码
-
-        # 5. 发起调用
-        try:
-            completion = client.chat.completions.create(**request_kwargs)
-            
-            response_content = completion.choices[0].message.content.strip()
-            prompt_tokens = completion.usage.prompt_tokens if completion.usage else 0 
-            completion_tokens = completion.usage.completion_tokens if completion.usage else 0 
-            
-            return {
-                "content": response_content,
-                "prompt_tokens": prompt_tokens,
-                "completion_tokens": completion_tokens,
-            }
-        except Exception as e:
-            # 简单的错误捕获，方便调试
-            print(f"❌ 模型调用出错 (Service {service_index}): {e}")
-            return {
-                "content": "{}",  # 返回空JSON字符串防崩
-                "prompt_tokens": 0,
-                "completion_tokens": 0,
             }
 
     def call_qwen_vl_32b(self,image_content: str, prompt: str) -> str:
