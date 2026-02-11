@@ -56,7 +56,7 @@ TAG_WHITELIST = {
         "表情": ["微笑", "大笑", "严肃", "闭眼"],
         "姿态": ["坐姿", "站立"],
         "服饰": {
-            "眼镜": ["眼镜", "无眼镜"],
+            "眼镜": ["眼镜", "否"],
             "基本款式": ["西装", "职业装", "T恤", "衬衫", "毛衣", "羽绒服", "裙子", "运动装", "睡衣", "校服", "婚纱", "泳装"],
             "题材": ["cosplay", "lolita", "jk", "旗袍", "新中式", "民族服装", "夏装", "冬装", "春秋装"],
             "风格": ["休闲风", "街头风", "正式风", "学院风"]
@@ -224,14 +224,17 @@ def third_level_person_cloth(state: ImageTaggingState) -> ImageTaggingState:
         image_info = state["image_info"]
         prompt = """
         任务：基于图片，提取“人像”的服饰标签，仅从以下预设选项中选择（可多选，不确定的标签坚决不选）：
-        - 眼镜：眼镜、无眼镜
         - 服饰款式：西装、职业装、T恤、衬衫、毛衣、羽绒服、裙子、运动装、睡衣、校服、婚纱、泳装
         - 服饰题材：cosplay、lolita、jk、旗袍、新中式、民族服装、夏装、冬装、春秋装
         - 服饰风格：休闲风、街头风、正式风、学院风
-        输出要求：严格用JSON格式返回，key为分类类型（如“基本款式”“题材”“风格”），value为标签列表（空列表不显示），不添加任何额外文字、解释或标点。
+        - 眼镜：眼镜、否
+        """
+        extend_require = """
+                输出要求：严格用JSON格式返回，key为分类类型（如“基本款式”“题材”“风格”），value为标签列表（空列表不显示），不添加任何额外文字、解释或标点。
         错误示例（禁止）：{"基本款式":["西装"], "题材":["新中式"], "备注":"图片为室内自拍"}
         正确示例（必须遵循）：{"基本款式":["西装","职业装"], "题材":["新中式"], "风格":["正式风"]}
         """
+        
         schema = ClothingDetailsSchema.model_json_schema()
         response = model.call_qwen_new(image_info, prompt, schema=schema)
         
@@ -240,11 +243,19 @@ def third_level_person_cloth(state: ImageTaggingState) -> ImageTaggingState:
         state["messages"].append(AIMessage(content=response["content"]))
         
         try:
+            # 1. 先尝试标准解析
             clean_content = response["content"].strip().replace("```json", "").replace("```", "")
             data = json.loads(clean_content)
-        except Exception as e:
-            logger.info(f"⚠️ JSON解析失败：{str(e)}")
-            data = {}
+        except Exception:
+            # 2. 如果失败，用 json_repair 尝试修复（它可以自动补全缺失的 }）
+            try:
+                # repair_json 返回的是解析好的 dict，不是 string
+                from json_repair import repair_json
+                data = json.loads(repair_json(clean_content))
+                logger.warning(f"⚠️ JSON被截断，已自动修复。原始内容：{clean_content}")
+            except Exception as e:
+                logger.error(f"❌ JSON彻底无法解析：{str(e)}")
+                data = {}
         
         logger.info(f"三级人像服饰标签：{data}")
         return {"second_level_person_cloth": data, "second_level_person_cloth_token_price": price}

@@ -157,8 +157,118 @@ class CallVLMModel:
             "completion_tokens": completion_tokens,
         }
 
+
+    def call_qwen_new(self, image_content: str, prompt: str, schema: dict = None, service_index: int = 0) -> dict:
+        """
+        封装 Qwen3-VL-4B-Instruct 调用
+        Args:
+            image_content: 图片路径或Base64或URL
+            prompt: 提示词
+            schema: (可选) Pydantic生成的JSON Schema，用于强制结构化输出
+            service_index: (可选) 指定服务节点索引，None 则随机
+        """
+        
+        # 1. 选择客户端 (修复 bug: if service_index 会误判 0 为 False)
+        service_index_list = [self.qwen_local_client0, self.qwen_local_client1]
+        if service_index is not None and 0 <= service_index < len(service_index_list):
+            client = service_index_list[service_index]
+        else:
+            client = random.choice(service_index_list)
+
+        # 2. 处理图片格式 (关键修正)
+        # vLLM/Qwen 对 base64 的要求：必须包含 "data:image/jpeg;base64," 前缀
+        if self.is_http_https_url(image_content):
+            image_url_value = image_content.strip()
+        else:
+            content_stripped = image_content.strip()
+            # 自动补全 base64 前缀
+            if not content_stripped.startswith("data:"):
+                # 默认假设是 jpeg，如果是 png 可以改，但通常模型能自适应
+                image_url_value = f"data:image/jpeg;base64,{content_stripped}"
+            else:
+                image_url_value = content_stripped
+
+        # 3. 构造请求参数
+        # 注意：不要硬编码模型路径，建议从 client 或 self.model_name 获取
+        # 这里假设你 self 里存了模型名，或者你确认两个端口模型一致
+        model_name = "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/model/Qwen/Qwen3-VL-4B-Instruct"
+
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": image_url_value
+                        }
+                    },
+                    {"type": "text", "text": prompt},
+                ],
+            }
+        ]
+
+        request_kwargs = {
+            "model": model_name,
+            "messages": messages,
+            "temperature": 0.1,  # 打标任务建议低温
+            "max_tokens": 512,  # Qwen3 上下文更长，可以给多点防止截断
+            "top_p": 0.95        # 增加一点点确定性
+        }
+
+        # 4. 结构化输出 (JSON Schema)
+        # 你的写法是 OpenAI 格式，vLLM >= 0.6.0 完美支持
+        # 但 Qwen3 有时对 `strict: True` 敏感，如果报错可以尝试去掉 strict
+        if schema is not None:
+            # request_kwargs["extra_body"] = {
+            #      "guided_json": schema
+            # }
+            # 💡 备选方案：如果上面的 extra_body 不工作，再切回下面的 response_format
+            request_kwargs["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "tagging_result",
+                    "schema": schema,
+                    "strict": True # 如果报错，改为 False
+                }
+            }
+
+        # 5. 发起调用
+        try:
+            completion = client.chat.completions.create(**request_kwargs)
+            
+            # 增加空值检查
+            if not completion.choices:
+                raise ValueError("模型返回了空的 choices 列表")
+
+            response_content = completion.choices[0].message.content.strip()
+            
+            # 兼容 usage 为 None 的情况
+            usage = getattr(completion, 'usage', None)
+            prompt_tokens = usage.prompt_tokens if usage else 0
+            completion_tokens = usage.completion_tokens if usage else 0
+            
+            return {
+                "content": response_content,
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+            }
+
+        except Exception as e:
+            # 打印详细错误栈，方便排查是参数错还是网络错
+            import traceback
+            print(f"❌ 模型调用出错 (Service {service_index if service_index is not None else 'Random'}):")
+            print(f"   Error: {e}")
+            # traceback.print_exc() # 调试时打开
+            return {
+                "content": "{}", 
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "error": str(e) # 把错误信息带出去
+            }
+
     # 合并后的调用函数，支持指定服务节点(0或1)以及Schema约束
-    def call_qwen_new(self, image_content: str, prompt: str, schema: dict = None, service_index: int = None) -> dict:
+    def call_qwen_new2(self, image_content: str, prompt: str, schema: dict = None, service_index: int = 0) -> dict:
         """
         封装qwen2.5-vl-3b-instruct调用
         Args:
@@ -171,7 +281,7 @@ class CallVLMModel:
         # 1. 选择客户端
         # 传index用第几个客户端没传的话随机选；负载均衡
         service_index_list = [self.qwen_local_client0, self.qwen_local_client1]
-        if service_index:
+        if service_index != None:
             client = service_index_list[service_index]
         else:
             client = random.choice(service_index_list)
@@ -191,7 +301,7 @@ class CallVLMModel:
 
         # 3. 构造请求参数
         request_kwargs = {
-            "model": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/model/Qwen/Qwen2.5-VL-3B-Instruct",
+            "model": "/workspace/work/zhipeng16/git/Multi_agent_image_tagging/model/Qwen/Qwen3-VL-4B-Instruct",
             "messages": [
                 {
                     "role": "user",

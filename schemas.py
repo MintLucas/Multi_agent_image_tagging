@@ -68,7 +68,7 @@ class PortraitDetailsSchema(BaseModel):
     # 饰品可能真的没有，所以保留 default=[]，允许为空列表
     饰品: List[Literal["帽子", "口罩", "耳环", "项链"]] = Field(
         default=[], 
-        description="饰品(多选)：眼镜(含黑色墨镜/近视镜/透明镜)、帽子、口罩、耳环、项链。"
+        description="饰品(多选)：帽子、口罩、耳环、项链。"
     )
 
 # ==========================================
@@ -84,8 +84,8 @@ class ClothingDetailsSchema(BaseModel):
     风格: List[Literal["休闲风", "街头风", "正式风", "学院风"]] = Field(
         default=[], description="服装的整体风格"
     )
-    眼镜: List[Literal["眼镜","无眼镜"]] = Field(
-        description="是否佩戴眼镜。只要佩戴了任何类型的眼镜（包括近视镜、墨镜、太阳镜、装饰镜等），都必须选'眼镜'。"
+    眼镜: List[Literal["眼镜","否"]] = Field(
+        description="是否佩戴眼镜。只要佩戴了任何类型的眼镜（包括近视镜、墨镜、太阳镜、装饰镜等），都必须选'眼镜'。",max_items=1
     )
 
 # ==========================================
