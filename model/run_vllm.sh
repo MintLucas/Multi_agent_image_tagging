@@ -7,7 +7,7 @@ VLLM_CMD="/workspace/work/moniforge3/envs/zp_vllm/bin/vllm"
 export PYTHONUNBUFFERED=1
 # 模型路径
 MODEL_PATH="/workspace/work/zhipeng16/git/Multi_agent_image_tagging/model/Qwen/Qwen2.5-VL-3B-Instruct"
-
+MODEL_PATH="/workspace/work/zhipeng16/git/Multi_agent_image_tagging/model/Qwen/Qwen3-VL-4B-Instruct"
 echo "正在启动 vLLM 服务..."
 echo "vLLM路径: $VLLM_CMD"
 
@@ -20,22 +20,23 @@ fi
 # -------------------------------------------------------
 # 启动服务 1：占用 GPU 0,1 | 端口 8000
 # -------------------------------------------------------
-echo ">>> 启动服务 1 (GPU 0,1 -> Port 8000)..."
-CUDA_VISIBLE_DEVICES=0,1 nohup "$VLLM_CMD" serve "$MODEL_PATH" \
-    --host 0.0.0.0 \
-    --port 8000 \
-    --limit-mm-per-prompt '{"image":2,"video":0}' \
-    --gpu-memory-utilization 0.8 \
-    --max-model-len 65536 \
-    --trust-remote-code \
-    --tensor-parallel-size 2 \
-    > vllm_8000.log 2>&1 &
+# echo ">>> 启动服务 1 (GPU 0,1 -> Port 8000)..."
+# CUDA_VISIBLE_DEVICES=0,1 nohup "$VLLM_CMD" serve "$MODEL_PATH" \
+#     --host 0.0.0.0 \
+#     --port 8000 \
+#     --limit-mm-per-prompt '{"image":2,"video":0}' \
+#     --gpu-memory-utilization 0.8 \
+#     --max-model-len 65536 \
+#     --trust-remote-code \
+#     --tensor-parallel-size 2 \
+#     > vllm_8000.log 2>&1 &
 
-sleep 2
+# sleep 2
 # VLLM_CMD="/workspace/work/moniforge3/envs/lyf50_vllm/bin/vllm"
 # -------------------------------------------------------
 # 启动服务 2：占用 GPU 2,3 | 端口 8001
 # -------------------------------------------------------
+# MODEL_PATH="/workspace/work/zhipeng16/git/Multi_agent_image_tagging/model/Qwen/Qwen2.5-VL-7B-Instruct"
 echo "正在启动 vLLM 服务..."
 echo "vLLM路径: $VLLM_CMD"
 echo ">>> 启动服务 2 (GPU 2,3 -> Port 8001)..."
