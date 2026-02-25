@@ -56,7 +56,7 @@ def retest_low_accuracy_tags(threshold, excel_path):
         return f"读取 Excel 失败: {e}"
 
     # 2. 准备接口参数 [cite: 2, 3, 6]
-    api_url = "http://49.7.36.149:80/process_image_local"
+    api_url = "http://10.136.234.255:8081/process_image"
     headers = {"Content-Type": "application/json"}
 
     results_list = []
@@ -146,5 +146,5 @@ if __name__ == "__main__":
     input_excel = 'images_result_with_labels_20260129_match_result_processed.xlsx'
 
     # 请在您的本地环境中取消注释并运行以下行：
-    res = retest_low_accuracy_tags(1, input_excel)
+    res = retest_low_accuracy_tags(0.0, input_excel)
     print(res)

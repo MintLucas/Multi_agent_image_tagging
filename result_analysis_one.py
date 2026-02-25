@@ -58,8 +58,7 @@ class ImageTagPipeline:
 
             # 解析预测结果
             process_result = entry.get('process_result') or {}
-            final_labels = process_result.get('final_labels') or []
-
+            final_labels = process_result.get('final_labels') or process_result.get("res", {}).get("final_labels", [])
             # 判断是否命中
             is_included = '否'
             if target_tag:
@@ -68,9 +67,9 @@ class ImageTagPipeline:
                         is_included = '是'
                         break
 
-            total_labels_count = process_result.get('total_labels_count', "")
-            elapsed_time = process_result.get('elapsed_time', "")
-            token_cost = process_result.get('token_cost', "")
+            total_labels_count = process_result.get('total_labels_count', "") or  process_result.get("res", {}).get("total_labels_count", "")
+            elapsed_time = process_result.get('elapsed_time', "") or process_result.get("res", {}).get("elapsed_time", "")
+            token_cost = process_result.get('token_cost', "") or process_result.get("res", {}).get("token_cost", "")
             row = {
                 '路径名': image_path,
                 '路径URL': image_url,
@@ -404,20 +403,25 @@ class ImageTagPipeline:
 # =========================================================================
 if __name__ == "__main__":
     # 1. 实例化 Pipeline
-    pipeline = ImageTagPipeline(api_url="http://10.136.234.255:8081/process_image")
+    api_url = "http://10.136.234.255:8081/process_image"
+    pipeline = ImageTagPipeline()
 
     # 2. 原始文件处理 (第一轮)
     first_round_json = "images_result_with_labels_20260129_match_result.json"
+
 
     # 2.1 JSON -> Excel
     old_excel = pipeline.json_to_excel(first_round_json)
 
     # 3. 开始重测流程;这个保存文件名字为retest不一致，用另一个py badcase_improve来测
     # 筛选识别率 < 60% 的标签进行重测
-    # retest_json = pipeline.retest_low_accuracy(threshold=0.0)
 
-    # 4. 将重测结果转为新 Excel
-    retest_json = "images_result_with_labels_20260210_match_result.json"
+    retest_json = pipeline.retest_low_accuracy(threshold=1)
+    # retest_json = "images_result_with_labels_20260211_retest.json"
+    new_excel = pipeline.json_to_excel(retest_json)
+    #
+    # # 4. 将重测结果转为新 Excel
+    # retest_json = "images_result_with_labels_20260211_match_result.json"
     new_excel = pipeline.json_to_excel(retest_json)
 
     # 5. 对比两个 Excel
