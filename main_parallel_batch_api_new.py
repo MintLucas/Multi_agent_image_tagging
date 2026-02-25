@@ -10,12 +10,14 @@ from typing import List, Dict
 # 配置项
 # --------------------------
 API_URL = "http://10.136.234.255:8080/process_image"
-API_URL2 = "http://10.136.234.255:8081/process_image"
+API_URL = "http://10.136.234.255:8081/process_image"
 
 MAX_WORKERS = 1  # 线程池大小
 REQUEST_TIMEOUT = 300  # 请求超时时间（秒）
 dir_pre = "/Users/zhipeng/Win10/LocalOneDrive/Gitee/Multi_agent_image_tagging"
+dir_pre = "/workspace/work/zhipeng16/git/Multi_agent_image_tagging"
 IMAGE_FOLDER = dir_pre + '/无他图片标签测试图2'  # 图片文件夹路径
+IMAGE_FOLDER = dir_pre + '/badcase' 
 OUTPUT_EXCEL = dir_pre + "/主体类型.xlsx"
 OUTPUT_EXCEL2 = dir_pre + "/主体类型2.xlsx"
 PREFIX_TO_REMOVE = "/Users/zhipeng/Win10/LocalOneDrive/Gitee"  # 路径简化前缀

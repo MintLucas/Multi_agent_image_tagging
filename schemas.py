@@ -12,58 +12,62 @@ from typing import List, Literal
 # 1. 一级分类 Schema
 # ==========================================
 class FirstLevelSchema(BaseModel):
+    # 新增：强制思维链字段（必须放在最前面）
+    画面分析: str = Field(
+        description="简要描述画面内容。如果是人物，请明确指出是完整人物、半身，还是仅仅只有手、胳膊、腿等局部肢体。"
+    )
     主体: List[Literal["人像", "动物（宠物）", "植物", "风景", "食物", "建筑", "其他"]] = Field(
-        description="图片核心主体判断。注意：花朵/花海/植物属于'风景'；饮品/酒属于'食物'；含积雪/蓝天/夜景均可算'风景'。"
+        description="图片核心主体判断。注意：只有画面分析中明确包含面部或半身时，才能选'人像'。如果是局部肢体（手/脚），严禁选'人像'！"
     )
 
 # ==========================================
 # 2. 人像二级细节 Schema
 # ==========================================
 class PortraitDetailsSchema(BaseModel):
-    # 核心字段：强制必填 (移除 default=[])，配合详细定义
-    性别: List[Literal["男性", "女性"]] = Field(description="性别判定")
-    
+    # ... (后续字段保持 default=[] 不变) ...
+    性别: List[Literal["男性", "女性"]] = Field(default=[], description="性别判定。看不清或非人像请留空。")
+    # ... (其他字段省略，保持原样)
     年龄: List[Literal["儿童", "少年", "青年", "中年", "老年"]] = Field(
-        description="严格年龄段：儿童(0-10岁)、少年(11-18岁)、青年(19-35岁)、中年(36-59岁)、老年(60岁+)"
+        default=[], description="严格年龄段：儿童(0-10岁)、少年(11-18岁)、青年(19-35岁)、中年(36-59岁)、老年(60岁+)。看不清脸严禁标注。"
     )
     
     人数: List[Literal["单人", "多人"]] = Field(
-        description="单人（画面里仅一个人物），多人（画面里出现≥2 个人物）"
+        default=[], description="单人（画面里仅一个人物），多人（画面里出现≥2 个人物）。非人像留空。"
     )
     
     拍摄方式: List[Literal["自拍", "他拍", "合影"]] = Field(
-            description="判断是谁拍的。自拍(看到手机/手臂延伸)；合影(刻意多人配合)；他拍(常规拍摄)。"
-        )
+        default=[], description="判断是谁拍的。自拍(看到手机/手臂延伸)；合影(刻意多人配合)；他拍(常规拍摄)。"
+    )
     
     构图: List[Literal["全身", "半身", "面部特写"]] = Field(
-        description="判断画面涵盖范围。全身(头到脚)；半身(腰/腿以上)；面部特写(仅头颈)；。"
+        default=[], description="判断画面涵盖范围。全身(头到脚)；半身(腰/腿以上)；面部特写(仅头颈)。"
     )
     
     角度: List[Literal["正面", "侧面", "背影"]] = Field(
-        description="人物相对于镜头的朝向。"
+        default=[], description="人物相对于镜头的朝向。"
     )
     用途: List[Literal["生活照", "证件照", "情侣照"]] = Field(
-        description="用途：生活照(日常)；证件照(纯色背景/无夸张饰品/正面)；情侣照(亲密互动/甜蜜氛围)。"
+        default=[], description="用途：生活照(日常)；证件照(纯色背景/无夸张饰品/正面)；情侣照(亲密互动/甜蜜氛围)。"
     )
     
     发型长度: List[Literal["长发", "短发"]] = Field(
-        description="发长：长发(过肩/≥30cm)；短发(≤下巴/寸头/波波头)。"
+        default=[], description="发长：长发(过肩/≥30cm)；短发(≤下巴/寸头/波波头)。"
     )
     
     发型直卷: List[Literal["卷发", "直发"]] = Field(
-        description="发质：卷发(自然卷/烫卷/波浪)；直发(顺直无明显卷曲)。"
+        default=[], description="发质：卷发(自然卷/烫卷/波浪)；直发(顺直无明显卷曲)。"
     )
     
     发型形式: List[Literal["扎发", "披发"]] = Field(
-        description="形式：扎发(马尾/丸子头/辫子)；披发(自然散开)。"
+        default=[], description="形式：扎发(马尾/丸子头/辫子)；披发(自然散开)。"
     )
     
     表情: List[Literal["微笑", "大笑", "严肃", "闭眼"]] = Field(
-        description="表情：微笑(嘴角上扬)；大笑(露齿/开朗)；严肃(无笑容/专注)；闭眼(休息/睡眠)。"
+        default=[], description="表情：微笑(嘴角上扬)；大笑(露齿/开朗)；严肃(无笑容/专注)；闭眼(休息/睡眠)。看不清脸请留空。"
     )
     
     姿态: List[Literal["坐姿", "站立"]] = Field(
-        description="姿态：坐姿(椅子/地面/沙发)；站立(自然站立/摆拍)。"
+        default=[], description="姿态：坐姿(椅子/地面/沙发)；站立(自然站立/摆拍)。"
     )
 
 
@@ -95,11 +99,20 @@ class PortraitDetailsSchema(BaseModel):
 #     )
 
 class ClothingDetailsSchema(BaseModel):
+    # # 1. 新增：思维链分析
+    # 衣物可视分析: str = Field(
+    #     description="分析画面中人物的衣物是否清晰可见。例如：'是大头照，看不到衣服'、'光线太暗看不清'、'人物穿了清晰的西装'。"
+    # )
+    # # 2. 新增：看门狗开关（解决瞎猜毛衣/春秋装的核心）
+    # 是否存在有效衣物: bool = Field(
+    #     description="【核心判断】：如果是'面部特写'（看不到肩膀以下）、'裸露上半身'、'全身被遮挡'或'画面太暗'，必须选 False。只有明确看到衣服款式才选 True。"
+    # )
+
+    # ... (后续字段保持 default=[] 不变) ...
     基本款式: List[Literal["西装", "职业装", "T恤", "衬衫", "毛衣", "羽绒服", "裙子", "运动装", "睡衣", "校服", "婚纱", "泳装"]] = Field(
         default=[], 
-        description="【强制扫描全身】：仔细观察人物上装和下装。必须识别出至少一种主要服装类型（如穿了裙子必选'裙子'，穿了西服必选'西装'）。"
+        description="【强制扫描全身】：仔细观察人物上装和下装。必须识别出至少一种主要服装类型。"
     )
-    
     题材: List[Literal["cosplay", "lolita", "jk", "旗袍", "新中式", "民族服装", "夏装", "冬装", "春秋装"]] = Field(
         default=[], 
         description="【风格识别】：判断服装的特定题材。特别是Lolita、JK、Cosplay、汉服等特色服饰，特征明显时必须检出。"
@@ -160,32 +173,75 @@ class SceneryDetailsSchema(BaseModel):
 # ==========================================
 # 7. 全局场景类型 Schema
 # ==========================================
+# class SceneTypeSchema(BaseModel):
+#     空间: List[Literal["室内", "室外"]] = Field(
+#         description="物理空间属性。室内(有屋顶/墙壁)；室外(露天环境)。"
+#     )
+#     场所类型: List[Literal[ "自然", "家居", "餐厅", "健身房", "游乐园", "音乐节", "KTV", "演唱会"]] = Field(
+#         default=[], description="所处空间类型"
+#     )
+#     时间: List[Literal["白天", "夜晚"]] = Field(
+#         default=[], description="白天(自然光) vs 夜晚(人工照明)"
+#     )
+#     天气: List[Literal["晴天", "阴天", "多云", "雨天", "雪天", "雾天", "彩虹"]] = Field(
+#         default=[], description="天气状况"
+#     )
+#     光线: List[Literal["自然光", "逆光"]] = Field(
+#         default=[], description="特殊光影"
+#     )
+#     特殊元素: List[Literal["烟花", "圣诞树", "气球", "彩带", "蛋糕", "粽子", "元宵", "月饼", "礼物盒"]] = Field(
+#         default=[], description="画面中明确存在的实体物品（排除印刷图案）"
+#     )
+#     # 2. 新增：独立水印字段（强制二选一）
+#     水印: List[Literal["水印", "无水印"]] = Field(
+#         description="【强制检查】：扫描画面四角及中央。只要发现文字水印、Logo、时间戳或防盗纹，必须选'水印'；完全干净选'无水印'。不可为空。"
+#     )
+#     图片质量: List[Literal["无路人", "有路人", "老照片"]] = Field(
+#         default=[], description="画面质量与干扰因素：无路人(仅主体)；有路人(画面中有除主体外的其他人物)；老照片(泛黄/年代感)。"
+#     )
+#     节日: List[Literal["生日", "婚礼", "圣诞", "春节", "中秋", "端午", "万圣节", "国庆"]] = Field(
+#         default=[], description="明显的节日氛围元素"
+#     )
 class SceneTypeSchema(BaseModel):
-    空间: List[Literal["室内", "室外"]] = Field(
-        description="物理空间属性。室内(有屋顶/墙壁)；室外(露天环境)。"
+    # 1. 新增：强制思维链字段（必须在最前）
+    场景分析: str = Field(
+        description="简要描述画面中的物理环境、光线、天气，以及是否看到了任何明确的特殊实体物品（如节日装饰、食物等）。"
     )
-    场所类型: List[Literal[ "自然", "家居", "餐厅", "健身房", "游乐园", "音乐节", "KTV", "演唱会"]] = Field(
-        default=[], description="所处空间类型"
+    
+    # 2. 对所有 List 增加 max_length 锁和 uniqueItems 约束
+    空间: List[Literal["室内", "室外"]] = Field(
+        default=[], description="物理空间属性。室内(有屋顶/墙壁)；室外(露天环境)。",
+        max_length=2
+    )
+    场所类型: List[Literal["自然", "家居", "餐厅", "健身房", "游乐园", "音乐节", "KTV", "演唱会"]] = Field(
+        default=[], description="所处空间类型",
+        max_length=8
     )
     时间: List[Literal["白天", "夜晚"]] = Field(
-        default=[], description="白天(自然光) vs 夜晚(人工照明)"
+        default=[], description="白天(自然光) vs 夜晚(人工照明)",
+        max_length=2
     )
     天气: List[Literal["晴天", "阴天", "多云", "雨天", "雪天", "雾天", "彩虹"]] = Field(
-        default=[], description="天气状况"
+        default=[], description="天气状况",
+        max_length=7
     )
     光线: List[Literal["自然光", "逆光"]] = Field(
-        default=[], description="特殊光影"
+        default=[], description="特殊光影",
+        max_length=2
     )
     特殊元素: List[Literal["烟花", "圣诞树", "气球", "彩带", "蛋糕", "粽子", "元宵", "月饼", "礼物盒"]] = Field(
-        default=[], description="画面中明确存在的实体物品（排除印刷图案）"
+        default=[], description="画面中明确存在的实体物品（排除印刷图案）",
+        max_length=9
     )
-    # 2. 新增：独立水印字段（强制二选一）
     水印: List[Literal["水印", "无水印"]] = Field(
-        description="【强制检查】：扫描画面四角及中央。只要发现文字水印、Logo、时间戳或防盗纹，必须选'水印'；完全干净选'无水印'。不可为空。"
+        description="【强制检查】：只要发现文字水印、Logo、时间戳或防盗纹，必须选'水印'；完全干净选'无水印'。",
+        max_length=2
     )
     图片质量: List[Literal["无路人", "有路人", "老照片"]] = Field(
-        default=[], description="画面质量与干扰因素：无路人(仅主体)；有路人(画面中有除主体外的其他人物)；老照片(泛黄/年代感)。"
+        default=[], description="画面质量与干扰因素。",
+        max_length=3
     )
     节日: List[Literal["生日", "婚礼", "圣诞", "春节", "中秋", "端午", "万圣节", "国庆"]] = Field(
-        default=[], description="明显的节日氛围元素"
+        default=[], description="明显的节日氛围元素",
+        max_length=8
     )

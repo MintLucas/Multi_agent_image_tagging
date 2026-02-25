@@ -21,7 +21,7 @@ logger.add(
 # 添加文件输出
 logger.add(
     "logs/app.log",  # 普通日志文件
-    rotation="500 MB",  # 日志文件大小超过500MB时轮转
+    rotation="50 MB",  # 日志文件大小超过500MB时轮转
     retention="10 days",  # 保留10天的日志
     compression="zip",  # 压缩旧的日志文件
     format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} - {message}",

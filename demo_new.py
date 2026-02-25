@@ -98,7 +98,7 @@ def encode_image_resized(image_path, max_edge=768):
 # ==========================================
 
 IMAGE_FOLDER = '/workspace/work/zhipeng16/git/Multi_agent_image_tagging/无他图片标签测试图/2、人像细节/2.1 性别与年龄/'
-
+IMAGE_FOLDER = '/workspace/work/zhipeng16/git/Multi_agent_image_tagging/badcase'
 # 优化后的极简 Prompt (Scheme 1)
 # 所有的约束都在 JSON Schema 里了，Prompt 只需要告诉模型“做什么”
 PROMPT = """
