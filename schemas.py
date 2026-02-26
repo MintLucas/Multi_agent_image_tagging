@@ -123,7 +123,7 @@ class ClothingDetailsSchema(BaseModel):
         description="整体穿搭氛围判断。"
     )
     
-    饰品: List[Literal["帽子", "口罩", "耳环", "项链", "发饰", "围巾"]] = Field(
+    饰品: List[Literal["帽子", "口罩", "耳环", "项链", "发饰", "围巾", "无"]] = Field(
         default=[], 
         description="【配饰扫描】：检查头部(帽子/发饰)、面部(口罩)、耳部(耳环)、颈部(项链/围巾)。"
     )
